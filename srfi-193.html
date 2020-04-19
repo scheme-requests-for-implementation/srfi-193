@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SRFI nnn</title>
+</head>
+<body>
+  <h1>SRFI nnn</h1>
+  <h2>Title</h2>
+  <p><strong>Command lines</strong></p>
+  <h2>Author</h2>
+  <p>Lassi Kortela</p>
+  <h2>Status</h2>
+  <p>Draft</p>
+  <h2>Abstract</h2>
+  <p>R<sup>6</sup>RS and R<sup>7</sup>RS define a
+  <strong>command-line</strong> procedure. While a useful baseline,
+  the specification is not detailed enough to cover all practical
+  situations. This SRFI clarifies the definition of
+  <strong>command-line</strong> and adds a few related procedures.
+  Precise semantics for Unix and Windows are given. Scheme scripts,
+  standalone executables, compilation and REPL use are accounted
+  for. Option parsing is out of scope.</p>
+  <h2>Table of contents</h2>
+  <ul>
+    <li>
+      <a href="#_rationale">Rationale</a>
+      <ul>
+        <li>
+          <a href="#_os_executables">OS executables</a>
+        </li>
+        <li>
+          <a href="#_os_command_lines">OS command lines</a>
+        </li>
+        <li>
+          <a href=
+          "#_command_names_are_portable_but_not_reliable">Command
+          names are portable but not reliable</a>
+        </li>
+        <li>
+          <a href=
+          "#_executable_filenames_are_reliable_but_not_portable">Executable
+          filenames are reliable but not portable</a>
+        </li>
+        <li>
+          <a href="#_program_command_lines">Program command
+          lines</a>
+        </li>
+        <li>
+          <a href="#_taming_the_complexity">Taming the
+          complexity</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="#_specification">Specification</a>
+      <ul>
+        <li>
+          <a href="#_terminology">Terminology</a>
+        </li>
+        <li>
+          <a href="#_os_procedures">OS procedures</a>
+        </li>
+        <li>
+          <a href="#_command_procedures">Command procedures</a>
+        </li>
+        <li>
+          <a href="#_script_procedures">Script procedures</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="#_implementation">Implementation</a>
+    </li>
+    <li>
+      <a href="#_acknowledgements">Acknowledgements</a>
+    </li>
+    <li>
+      <a href="#_references">References</a>
+    </li>
+  </ul>
+  <h2>Rationale</h2>
+  <h3>OS executables</h3>
+  <p>When a Scheme implementation is run on a conventional
+  operating system, the OS runs an <em>executable</em>. An
+  executable is a file that contains a program in a format suitable
+  for the OS. In the case of Scheme, the executable can
+  represent:</p>
+  <ul>
+    <li>
+      <p>A standalone Scheme program.</p>
+    </li>
+    <li>
+      <p>A Scheme implementation.</p>
+    </li>
+    <li>
+      <p>A virtual machine (such as the Java Virtual Machine or the
+      .NET Common Language Runtime) hosting the Scheme
+      implementation, which in turn hosts the Scheme program.</p>
+    </li>
+  </ul>
+  <h3>OS command lines</h3>
+  <p>The OS gives the executable a <em>command line</em>. The
+  command line is a vector of strings. There is a ubiquitous
+  convention that the first string represents the <em>command
+  name</em>. Any remaining strings are <em>command arguments</em>
+  interpreted differently by each program.</p>
+  <h3>Command names are portable but not reliable</h3>
+  <p>By convention, the command name is derived from the executable
+  filename in one of the following formats:</p>
+  <ul>
+    <li>
+      <p>An absolute pathname (<code>/usr/bin/emacs</code>)</p>
+    </li>
+    <li>
+      <p>A relative pathname (<code>../bin/emacs</code>)</p>
+    </li>
+    <li>
+      <p>A basename only with no directory part
+      (<code>emacs</code>)</p>
+    </li>
+  </ul>
+  <p>However, it is important to note that the command name is
+  <em>an arbitrary string</em> that is stored <em>wholly
+  separate</em> from the executable filename. A change in one does
+  not necessarily affect the other. Popular operating systems like
+  Unix and Windows let programs easily start other programs with an
+  arbitrary command name. The name is not validated in any way by
+  the OS. That’s why it is not a reliable hint for determining the
+  executable filename.</p>
+  <p>The upside of command lines, and hence command names, is that
+  they are extremely portable. Practically all general-purpose
+  operating systems provide them. As long as command names are used
+  for display purposes and not interpreted as filenames, programs
+  using them are portable and reliable.</p>
+  <h3>Executable filenames are reliable but not portable</h3>
+  <p>It is equally important to keep in mind that the executable
+  filename is <em>not</em> arbitrary like the command name is. When
+  the OS process is launched, the executable filename has to be
+  valid. (Any one executable generally has many valid filenames
+  since we can use relative filenames, make hard links and symbolic
+  links in the file system, etc.) Unix-like operating systems
+  generally allow the executable file to be moved, renamed or
+  deleted after the executable has been loaded into memory. While
+  the executable filename was guaranteed to be valid at the time of
+  process creation, it does not necessarily remain valid throughout
+  the lifetime of the process. However, it is generally both more
+  reliable and more specific than the command name.</p>
+  <p>Unfortunately, system calls that retrieve the executable
+  filename are extremely non-portable and not at all standardized.
+  Portable programs can make use of the executable filename where
+  it is available, but must be prepared to handle the case where it
+  is not.</p>
+  <h3>Program command lines</h3>
+  <p>The <strong>command-line</strong> procedure specified in
+  R<sup>6</sup>RS and R<sup>7</sup>RS returns a list of one or more
+  strings. As with OS command lines, the first string is by
+  convention the command name. However, <code>(command-line)</code>
+  is generally not the same as the OS command line.</p>
+  <p>When an implementation is started for the purpose of running a
+  Scheme program as a batch job, <code>(command-line)</code> is
+  most often a tail of the OS command line such that <code>(car
+  (command-line))</code> is the name of the Scheme program and
+  <code>(cdr (command-line))</code> are the arguments given to that
+  program.</p>
+  <p>For example, if the OS command line is:</p>
+  <p><code>fantastic-scheme --script program.scm foo bar
+  baz</code></p>
+  <p>the value of <code>(command-line)</code> generally is:</p>
+  <p><code>("program.scm" "foo" "bar" "baz")</code></p>
+  <p>Some Schemes support running more than one program in the same
+  batch job, with the ability to insert a <em>read-eval-print
+  loop</em> in between any pair of scripts. In that case the
+  command line is given to the last program in the batch (if
+  any).</p>
+  <p>When a Scheme program is turned into a standalone executable,
+  <code>(command-line)</code> and the OS command line are generally
+  equivalent. However, the Scheme implementation’s runtime system
+  may omit command line options that belong to it. For example,
+  Gambit omits the <code>-:</code> option.</p>
+  <p>In a read-eval-print loop the value of
+  <code>(command-line)</code> is not well specified. A reasonable
+  convention from Chez Scheme is to use a zero-length string as the
+  command name in this case.</p>
+  <p>Another ambiguous situation arises when using
+  <strong>load</strong> or <strong>import</strong> to load some
+  code into an implementation.</p>
+  <h3>Taming the complexity</h3>
+  <p>The interface defined by this SRFI is divided into three
+  layers:</p>
+  <ul>
+    <li>
+      <p>OS layer (<strong>os-executable-file</strong>,
+      <strong>os-command-line</strong>)</p>
+    </li>
+    <li>
+      <p>Command layer (<strong>command-line</strong>,
+      <strong>command-name</strong>,
+      <strong>command-args</strong>)</p>
+    </li>
+    <li>
+      <p>Script layer (<strong>script-file</strong>,
+      <strong>script-directory</strong>)</p>
+    </li>
+  </ul>
+  <p>The OS layer always concerns the operating system’s idea of
+  the executable.</p>
+  <p>The command layer applies whenever we are running a Scheme
+  program that is given its own command line (in the sense that the
+  R<sup>n</sup>RS <strong>command-line</strong> procedure would
+  return a useful command line concerning that program
+  specifically). Such a command line is normally a tail of the OS
+  command line, but may come from other places as well. Kawa offers
+  a particularly large number of alternative ways to set it.</p>
+  <p>The script layer applies whenever we are running a Scheme
+  program from a source file. It does not apply to standalone,
+  pre-compiled programs or libraries. The idea is that when running
+  simple Scheme scripts, it is often convenient to have them read
+  and write data files kept in the same directory as the script
+  itself.</p>
+  <h2>Specification</h2>
+  <h3>Terminology</h3>
+  <h4>Top-level programs</h4>
+  <p>For the purposes of this SRFI, the following
+  <strong>are</strong> considered <em>top-level programs</em>:</p>
+  <ul>
+    <li>
+      <p>A Scheme program turned into a standalone executable.</p>
+    </li>
+    <li>
+      <p>A program whose filename is given on the Scheme
+      implementation’s command line for the implementation to
+      execute (with or without a command line option such as
+      <code>-s</code>, <code>-script</code>, <code>--script</code>,
+      or <code>--program</code>).</p>
+    </li>
+    <li>
+      <p>A file loaded via <strong>load</strong> from the REPL, or
+      from a command line <code>-e</code> (evaluate expresssion)
+      flag.</p>
+    </li>
+  </ul>
+  <p>The following <strong>are not</strong> considered top-level
+  programs:</p>
+  <ul>
+    <li>
+      <p>A file loaded via <strong>load</strong> from another
+      file.</p>
+    </li>
+    <li>
+      <p>A file loaded implicitly via <strong>import</strong>.</p>
+    </li>
+    <li>
+      <p>Code evaluated in a REPL.</p>
+    </li>
+    <li>
+      <p>A Scheme source file being <em>compiled</em>.</p>
+    </li>
+  </ul>
+  <p>However, implementation-defined global options or optional
+  arguments are permitted that control whether or not
+  <strong>load</strong> treats files as top-level programs.</p>
+  <h4>Commands and scripts</h4>
+  <p>For the purposes of this SRFI, we classify a running Scheme
+  program as follows:</p>
+  <ul>
+    <li>
+      <p>A top-level program given a command line is a
+      <em>command</em>.</p>
+    </li>
+    <li>
+      <p>A top-level program run from a source file whose filename
+      is known to the implementation is a <em>script</em>. Note
+      that a file being compiled and stored away for later
+      execution is not a script; only a file loaded to be evaluated
+      once immediately is a script. The file may actually be loaded
+      from a compiled cache, as long as the source filename is used
+      to identify it.</p>
+    </li>
+  </ul>
+  <p>A running program can be either a command, a script, both at
+  once, or neither.</p>
+  <h3>OS procedures</h3>
+  <p>(<strong>os-executable-file</strong>) ⇒ <em>string?</em></p>
+  <p>Returns an absolute pathname pointing to the executable file
+  running the Scheme program. If the Scheme program is running as a
+  standalone executable, this returns the filename of that
+  executable. Otherwise this returns the filename of the executable
+  housing the Scheme implementation. If the Scheme implementation
+  is hosted on top of a virtual machine such as the JVM or the CLR,
+  the executable filename will probably point to that virtual
+  machine.</p>
+  <p><code>#f</code> is returned if no pathname can be retrieved.
+  Some operating systems do not give the information at all. Some
+  give it in an unreliable manner which this procedure cannot use.
+  Hence a <code>#f</code> return value is not extraordinary, and
+  portable Scheme code calling this procedure should be prepared to
+  handle it.</p>
+  <p>If there is more than one pathname pointing to the executable
+  (e.g. via symbolic links or hard links), it is undefined which
+  one of them is returned. The pathname is also not guaranteed to
+  be in a normal form. Many operating systems have a "realpath"
+  system call to simplify any given pathname into its most
+  canonical form. Implementations may or may not use such a
+  procedure to normalize the filename. The only guarantee from this
+  SRFI is that an absolute instead of relative filename is
+  returned. An absolute filename is important in case the program
+  changes its working directory later.</p>
+  <p><strong>IMPORTANT:</strong> This problem presents a
+  particularly compelling set of almost-working solutions to lure
+  implementors onto the rocks. At the time of writing there is no
+  correct approach that is even moderately portable. Please be
+  skeptical of any claim that a portable and correct approach
+  exists.</p>
+  <p>In particular, all of the following approaches are
+  incorrect.</p>
+  <ul>
+    <li>
+      <p>Using the current directory (aka the working directory) is
+      liable to break all the time. Programs other than simple
+      scripts for personal use are rarely started from the
+      directory in which they live; starting programs from
+      arbitrary directories using either <code>PATH</code> lookup
+      or an absolute or relative pathname is common.</p>
+    </li>
+    <li>
+      <p>No <code>argv[0]</code> based approach works properly.
+      <code>argv[0]</code> is simply an arbitrary string passed to
+      <code>execve()</code> in its <em>argv</em> argument. By
+      convention it is the program name. But contrary to popular
+      belief there is no mechanism enforcing that convention.
+      Multi-call binaries such as <code>busybox</code> deliberately
+      take advantage of this lack of enforcement - the same
+      executable can be started with any number of different
+      names.</p>
+    </li>
+    <li>
+      <p>Note that <code>execve()</code> takes separate
+      <em>path</em> and <em>argv</em> arguments. Only <em>path</em>
+      is checked to see that it points to a real file. Lamentably,
+      there is no portable API to retrieve <em>path</em> from
+      within the child process. Only <em>argv</em> retrieval is
+      portable.</p>
+    </li>
+    <li>
+      <p>When a process is started using its command name, with no
+      directory part, directories in <code>PATH</code> are
+      traversed to find a matching executable. Some programs try to
+      find their own executable by replicating a <code>PATH</code>
+      search for <code>argv[0]</code> when <code>argv[0]</code>
+      does not contain a directory part. This does not work for two
+      reasons: it’s trivial to pass a fake <code>argv[0]</code>,
+      and even with a truthful <code>argv[0]</code> the parent
+      process may not have used the same search path that it gave
+      to the child process.</p>
+    </li>
+    <li>
+      <p>Opening a candidate executable to compute a checksum of
+      its bytes and find out whether it is the same as the current
+      executable, presents a chicken-and-egg problem: where do you
+      get the checksum for the current executable to verify
+      against? It is also possible to install multiple copies of
+      the same executable at different locations, in which case
+      their checksums would match but not their filenames.</p>
+    </li>
+  </ul>
+  <p>The following is a partial list of correct approaches at the
+  time of writing.</p>
+  <ul>
+    <li>
+      <p>Darwin (macOS, iOS):
+      <code>_NSGetExecutablePath()</code></p>
+    </li>
+    <li>
+      <p>FreeBSD, DragonFly BSD: <code>sysctl({ CTL_KERN,
+      KERN_PROC, KERN_PROC_PATHNAME, -1 })</code></p>
+    </li>
+    <li>
+      <p>Linux: <code>readlink("/proc/self/exe")</code></p>
+    </li>
+    <li>
+      <p>NetBSD: <code>sysctl({ CTL_KERN, KERN_PROC_ARGS, -1,
+      KERN_PROC_PATHNAME })</code></p>
+    </li>
+    <li>
+      <p>OpenBSD: pathname intentionally unavailable</p>
+    </li>
+    <li>
+      <p>QNX: read (not readlink)
+      <code>/proc/self/exefile</code></p>
+    </li>
+    <li>
+      <p>Solaris: <code>getexecname()</code> or
+      <code>readlink("/proc/self/path/a.out")</code></p>
+    </li>
+    <li>
+      <p>Windows NT: <code>GetModuleFileNameW(NULL)</code></p>
+    </li>
+  </ul>
+  <p>Most of these procedures take a pre-allocated string buffer
+  and copy the filename into it. An effective tactic is to call the
+  procedure in a loop, doubling the size of the buffer at each
+  iteration until the filename fits or an upper limit is
+  reached.</p>
+  <p>(<strong>os-command-line</strong>) ⇒ <em>string-list</em></p>
+  <p>Returns the command line of the executable running the Scheme
+  program. The command line from the operating system is converted
+  to a list of Scheme strings. No other preprocessing (flag
+  parsing, separating runtime and script arguments, case
+  conversion, etc.) is performed.</p>
+  <ul>
+    <li>
+      <p>On Unix, returns a list equivalent to the <em>argv</em>
+      array. Each bytevector in <em>argv</em> is converted to a
+      Scheme string based on the character encoding prescribed by
+      the current locale. In case the locale encoding is unknown or
+      unsupported, <strong>utf8-&gt;string</strong> is an
+      acceptable fallback. The implementation should document which
+      encodings it supports.</p>
+    </li>
+    <li>
+      <p>On Windows NT, returns a list equivalent to passing the
+      string from <code>GetCommandLineW()</code> to the splitting
+      function <code>CommandLineToArgvW()</code> and converting the
+      resulting vector of UTF-16-LE encoded argument strings to
+      Scheme strings. In principle, it is possible to re-implement
+      <code>CommandLineToArgvW()</code> entirely in Scheme using
+      Scheme strings.</p>
+    </li>
+    <li>
+      <p>On Windows NT using the UTF-8 codepage,
+      <code>GetCommandLineA()</code> may be used to obtain
+      equivalent results. As of this writing there is no
+      <code>CommandLineToArgvA()</code> in the Windows API; a
+      Scheme equivalent could be written.</p>
+    </li>
+  </ul>
+  <p>Please note that <code>(car (os-command-line))</code> and
+  <code>(os-executable-file)</code> are two completely different
+  things. The two strings can be equal if you get lucky, but are
+  not at all interchangeable in principle, and often not in
+  practice either.</p>
+  <h3>Command procedures</h3>
+  <p>(<strong>command-line</strong>) ⇒ <em>string-list</em></p>
+  <p>This procedure is equivalent to the R<sup>6</sup>RS and
+  R<sup>7</sup>RS <strong>command-line</strong> procedure, but
+  specified in more detail.</p>
+  <p><strong>R<sup>6</sup>RS definition:</strong> "Returns a
+  nonempty list of strings. The first element is an
+  implementation-specific name for the running top-level program.
+  The remaining elements are command-line arguments according to
+  the operating system’s conventions."</p>
+  <p><strong>R<sup>7</sup>RS definition:</strong> "Returns the
+  command line passed to the process as a list of strings. The
+  first string corresponds to the command name, and is
+  implementation-dependent. It is an error to mutate any of these
+  strings."</p>
+  <p><strong>Additional stipulations by this SRFI:</strong></p>
+  <ul>
+    <li>
+      <p>If the calling program is <strong>not</strong> a
+      <em>command</em> in this SRFI’s terminology, a list equal to
+      <code>("")</code> is returned.</p>
+    </li>
+    <li>
+      <p>If the calling program is a standalone executable, the
+      command line is equal to <code>(os-command-line)</code> with
+      any arguments belonging to the Scheme runtime system
+      omitted.</p>
+    </li>
+    <li>
+      <p>If the calling program is a <em>script</em> as well as a
+      <em>command</em>, the command name is equal to the filename
+      given to <strong>load</strong>, on the command line, in an
+      environment variable, etc. The command args are the args (if
+      any) that belong to the script.</p>
+    </li>
+    <li>
+      <p>Otherwise, if the command name comes from a filename, the
+      filename is preserved as given to the implementation.</p>
+    </li>
+    <li>
+      <p>It is an error to mutate a <code>(command-line)</code>
+      list returned by the implementation, or any of the strings in
+      it.</p>
+    </li>
+    <li>
+      <p>It is permissible to implement
+      <strong>command-line</strong> as a parameter object. In that
+      case, the implementation binds the value of the parameter as
+      above for the duration of the command. The program may freely
+      rebind <strong>command-line</strong> to any other string list
+      containing at least one element, either temporarily with
+      <strong>parameterize</strong> or permanently.</p>
+    </li>
+    <li>
+      <p>If a program rebinds the <strong>command-line</strong>
+      parameter, the new binding may share structure with the old
+      binding.</p>
+    </li>
+  </ul>
+  <p>(<strong>command-name</strong>) ⇒ <em>string?</em></p>
+  <p>Returns a friendly version of <code>(car
+  (command-line))</code> evaluated in the current lexical
+  environment.</p>
+  <p>If <code>(car (command-line))</code> is a zero-length string,
+  <code>#f</code> is returned to indicate "not a command".</p>
+  <p>Otherwise a friendly command name is typically derived from a
+  filename as follows:</p>
+  <ul>
+    <li>
+      <p>The directory part (if any) is removed.</p>
+    </li>
+    <li>
+      <p>Filename extensions known to belong to executable files or
+      Scheme scripts on the underlying operating system are removed
+      at the discretion of the implementation. For example,
+      <code>.exe</code> or <code>.scm</code>.</p>
+    </li>
+    <li>
+      <p>Other changes may also be made according to local
+      conventions.</p>
+    </li>
+  </ul>
+  <p>For example, on Windows
+  <code>C:\fantastic-scheme-1.0.EXE</code> would typically be
+  shortened to <code>fantastic-scheme-1.0</code>.</p>
+  <p>(<strong>command-args</strong>) ⇒ <em>string-list</em></p>
+  <p>Returns <code>(cdr (command-line))</code> evaluated in the
+  current lexical environment.</p>
+  <h3>Script procedures</h3>
+  <p>(<strong>script-file</strong>) ⇒ <em>string?</em></p>
+  <p>Returns an absolute pathname pointing to the calling script.
+  Symbolic links are not resolved.</p>
+  <p>(The script may or may not be a command; use
+  <strong>command-name</strong> to find out.)</p>
+  <p>If the calling program is not a script, <code>#f</code> is
+  returned.</p>
+  <p>Implementations must resolve the absolute pathname of a script
+  before running that script. The script may change the working
+  directory, thereby changing the interpretation of relative
+  pathnames.</p>
+  <p>(<strong>script-directory</strong>) ⇒ <em>string?</em></p>
+  <p>Returns only the directory part of
+  <strong>script-file</strong> as a string. As with
+  <strong>script-file</strong>, this is an absolute pathname.</p>
+  <p>Where possible, the string ends with a pathname component
+  separator so that <strong>string-append</strong> can be easily
+  used to build pathnames based on it.</p>
+  <p>If the calling program is not a script, <code>#f</code> is
+  returned.</p>
+  <h2>Implementation</h2>
+  <p>Implementations are in progress for Gauche and
+  Chibi-Scheme.</p>
+  <p>It is not possible to implement this SRFI based on the
+  R<sup>n</sup>RS <strong>command-line</strong> procedure. However,
+  the <strong>command-line</strong> from this SRFI can serve as a
+  conforming implementation of R<sup>n</sup>RS
+  <strong>command-line</strong>.</p>
+  <h2>Acknowledgements</h2>
+  <p>Thanks to Shiro Kawai for the initial implementation in
+  Gauche, for patiently reviewing iterations of the design and for
+  valuable feedback that solved key problems in it. The interplay
+  of <strong>command-line</strong>, <strong>command-name</strong>
+  and <strong>command-args</strong> was especially tricky to figure
+  out and I had all but given up hope of a satisfying solution.
+  With Shiro’s insight a simple and natural approach was finally
+  found.</p>
+  <p>Eryk Sun and Daniel Colascione helped me understand how
+  command lines actually work on Windows in theory and practice - a
+  surprisingly complicated topic carrying much historical baggage.
+  With their help, we are able to select the right API functions to
+  retrieve the OS command line on that platform.</p>
+  <p>Gregory Pakosz wrote the <em>whereami</em> library, an
+  instructive collection of OS-specific solutions to the executable
+  filename problem. Many people also left useful clues in various
+  Stack Overflow questions.</p>
+  <h2>References</h2>
+  <p><em>The Kawa Scheme language.</em> Section 21.5 <em>System
+  inquiry</em>. Corresponds to Kawa version 3.1.1. <a href=
+  "https://www.gnu.org/software/kawa/System-inquiry.html">Link</a></p>
+  <p><em>The Gambit Scheme manual</em>. Section 2.5 <em>Scheme
+  scripts</em>. Corresponds to Gambit version 4.9.3. <a href=
+  "https://www.iro.umontreal.ca/~gambit/doc/gambit.html#Scheme-scripts">
+  Link</a></p>
+  <p><em>whereami</em> C library by Gregory Pakosz. Retrieved
+  2020-04-19. <a href=
+  "https://github.com/gpakosz/whereami">Link</a></p>
+  <p><em>Everyone quotes command line arguments the wrong way.</em>
+  Daniel Colascione. "Twisty Little Passages, All Alike" / MSDN
+  Blogs. Published 2011-04-23. Retrieved 2020-04-19. <a href=
+  "https://blogs.msdn.microsoft.com/twistylittlepassagesallalike/2011/04/23/everyone-quotes-command-line-arguments-the-wrong-way/">
+  Link</a></p>
+  <p><em>Windows API <code>CommandLineToArgvW</code> function.</em>
+  Retrieved 2020-04-19. <a href=
+  "https://docs.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-commandlinetoargvw">
+  Link</a>.</p>
+  <p><em>environ, execl, execle, execlp, execv, execve, execvp,
+  fexecve - execute a file</em>. The Open Group Base Specifications
+  ("POSIX") Issue 7, 2018 edition. IEEE Std 1003.1-2017 (Revision
+  of IEEE Std 1003.1-2008). <a href=
+  "https://pubs.opengroup.org/onlinepubs/9699919799/functions/execve.html">
+  Link</a></p>
+  <h2>Copyright</h2>
+  <p>Copyright © Lassi Kortela (2020)</p>
+  <p>Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation
+  files (the “Software”), to deal in the Software without
+  restriction, including without limitation the rights to use,
+  copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following
+  conditions:</p>
+  <p>The above copyright notice and this permission notice
+  (including the next paragraph) shall be included in all copies or
+  substantial portions of the Software.</p>
+  <p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY
+  KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+  AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+  OTHER DEALINGS IN THE SOFTWARE.</p>
+  <hr>
+  <address>
+    Editor: <a href=
+    "mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A.
+    Gleckler</a>
+  </address>
+</body>
+</html>
