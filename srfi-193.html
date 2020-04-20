@@ -74,6 +74,15 @@
       <ul>
         <li>
           <a href="#_terminology">Terminology</a>
+          <ul>
+            <li>
+              <a href="#_top_level_programs">Top-level programs</a>
+            </li>
+            <li>
+              <a href="#_commands_and_scripts">Commands and
+              scripts</a>
+            </li>
+          </ul>
         </li>
         <li>
           <a href="#_os_procedures">OS procedures</a>
@@ -96,8 +105,8 @@
       <a href="#_references">References</a>
     </li>
   </ul>
-  <h2>Rationale</h2>
-  <h3>OS executables</h3>
+  <h2 id="_rationale">Rationale</h2>
+  <h3 id="_os_executables">OS executables</h3>
   <p>When a Scheme implementation is run on a conventional
   operating system, the OS runs an <em>executable</em>. An
   executable is a file that contains a program in a format suitable
@@ -116,13 +125,14 @@
       implementation, which in turn hosts the Scheme program.</p>
     </li>
   </ul>
-  <h3>OS command lines</h3>
+  <h3 id="_os_command_lines">OS command lines</h3>
   <p>The OS gives the executable a <em>command line</em>. The
   command line is a vector of strings. There is a ubiquitous
   convention that the first string represents the <em>command
   name</em>. Any remaining strings are <em>command arguments</em>
   interpreted differently by each program.</p>
-  <h3>Command names are portable but not reliable</h3>
+  <h3 id="_command_names_are_portable_but_not_reliable">Command
+  names are portable but not reliable</h3>
   <p>By convention, the command name is derived from the executable
   filename in one of the following formats:</p>
   <ul>
@@ -150,7 +160,8 @@
   operating systems provide them. As long as command names are used
   for display purposes and not interpreted as filenames, programs
   using them are portable and reliable.</p>
-  <h3>Executable filenames are reliable but not portable</h3>
+  <h3 id="_executable_filenames_are_reliable_but_not_portable">
+  Executable filenames are reliable but not portable</h3>
   <p>It is equally important to keep in mind that the executable
   filename is <em>not</em> arbitrary like the command name is. When
   the OS process is launched, the executable filename has to be
@@ -168,7 +179,7 @@
   Portable programs can make use of the executable filename where
   it is available, but must be prepared to handle the case where it
   is not.</p>
-  <h3>Program command lines</h3>
+  <h3 id="_program_command_lines">Program command lines</h3>
   <p>The <strong>command-line</strong> procedure specified in
   R<sup>6</sup>RS and R<sup>7</sup>RS returns a list of one or more
   strings. As with OS command lines, the first string is by
@@ -202,7 +213,7 @@
   <p>Another ambiguous situation arises when using
   <strong>load</strong> or <strong>import</strong> to load some
   code into an implementation.</p>
-  <h3>Taming the complexity</h3>
+  <h3 id="_taming_the_complexity">Taming the complexity</h3>
   <p>The interface defined by this SRFI is divided into three
   layers:</p>
   <ul>
@@ -235,9 +246,9 @@
   simple Scheme scripts, it is often convenient to have them read
   and write data files kept in the same directory as the script
   itself.</p>
-  <h2>Specification</h2>
-  <h3>Terminology</h3>
-  <h4>Top-level programs</h4>
+  <h2 id="_specification">Specification</h2>
+  <h3 id="_terminology">Terminology</h3>
+  <h4 id="_top_level_programs">Top-level programs</h4>
   <p>For the purposes of this SRFI, the following
   <strong>are</strong> considered <em>top-level programs</em>:</p>
   <ul>
@@ -277,7 +288,7 @@
   <p>However, implementation-defined global options or optional
   arguments are permitted that control whether or not
   <strong>load</strong> treats files as top-level programs.</p>
-  <h4>Commands and scripts</h4>
+  <h4 id="_commands_and_scripts">Commands and scripts</h4>
   <p>For the purposes of this SRFI, we classify a running Scheme
   program as follows:</p>
   <ul>
@@ -297,7 +308,7 @@
   </ul>
   <p>A running program can be either a command, a script, both at
   once, or neither.</p>
-  <h3>OS procedures</h3>
+  <h3 id="_os_procedures">OS procedures</h3>
   <p>(<strong>os-executable-file</strong>) ⇒ <em>string?</em></p>
   <p>Returns an absolute pathname pointing to the executable file
   running the Scheme program. If the Scheme program is running as a
@@ -457,7 +468,7 @@
   things. The two strings can be equal if you get lucky, but are
   not at all interchangeable in principle, and often not in
   practice either.</p>
-  <h3>Command procedures</h3>
+  <h3 id="_command_procedures">Command procedures</h3>
   <p>(<strong>command-line</strong>) ⇒ <em>string-list</em></p>
   <p>This procedure is equivalent to the R<sup>6</sup>RS and
   R<sup>7</sup>RS <strong>command-line</strong> procedure, but
@@ -545,7 +556,7 @@
   <p>(<strong>command-args</strong>) ⇒ <em>string-list</em></p>
   <p>Returns <code>(cdr (command-line))</code> evaluated in the
   current lexical environment.</p>
-  <h3>Script procedures</h3>
+  <h3 id="_script_procedures">Script procedures</h3>
   <p>(<strong>script-file</strong>) ⇒ <em>string?</em></p>
   <p>Returns an absolute pathname pointing to the calling script.
   Symbolic links are not resolved.</p>
@@ -566,7 +577,7 @@
   used to build pathnames based on it.</p>
   <p>If the calling program is not a script, <code>#f</code> is
   returned.</p>
-  <h2>Implementation</h2>
+  <h2 id="_implementation">Implementation</h2>
   <p>Implementations are in progress for Gauche and
   Chibi-Scheme.</p>
   <p>It is not possible to implement this SRFI based on the
@@ -574,7 +585,7 @@
   the <strong>command-line</strong> from this SRFI can serve as a
   conforming implementation of R<sup>n</sup>RS
   <strong>command-line</strong>.</p>
-  <h2>Acknowledgements</h2>
+  <h2 id="_acknowledgements">Acknowledgements</h2>
   <p>Thanks to Shiro Kawai for the initial implementation in
   Gauche, for patiently reviewing iterations of the design and for
   valuable feedback that solved key problems in it. The interplay
@@ -592,7 +603,7 @@
   instructive collection of OS-specific solutions to the executable
   filename problem. Many people also left useful clues in various
   Stack Overflow questions.</p>
-  <h2>References</h2>
+  <h2 id="_references">References</h2>
   <p><em>The Kawa Scheme language.</em> Section 21.5 <em>System
   inquiry</em>. Corresponds to Kawa version 3.1.1. <a href=
   "https://www.gnu.org/software/kawa/System-inquiry.html">Link</a></p>
