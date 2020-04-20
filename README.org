@@ -1,0 +1,20 @@
+* SRFI 193: Command lines
+
+** by Lassi Kortela
+
+
+
+This repository hosts [[https://srfi.schemers.org/srfi-193/][SRFI 193]]: Command lines, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
+
+This SRFI is in /draft/ status.
+
+See also [[https://srfi.schemers.org/srfi-22/][SRFI 22: Running Scheme Scripts on Unix]].
+
+The full documentation for this SRFI can be found in the [[https://srfi.schemers.org/srfi-193/srfi-193.html][SRFI Document]].
+
+If you'd like to participate in the discussion of this SRFI, or report issues with it, please [[https://srfi.schemers.org/srfi-193/][join the SRFI-193 mailing list]] and send your message there.
+
+Thank you.
+
+
+[[mailto:srfi-editors@srfi.schemers.org][The SRFI Editors]]
