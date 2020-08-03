@@ -382,13 +382,16 @@
   <p>If the calling program is not a script, <code>#f</code> is
   returned.</p>
   <h2 id="_implementation">Implementation</h2>
-  <p>Implementations are in progress for Gauche and
+  <p>Due to the highly environment-dependent nature of the SRFI,
+  there is almost nothing that can go into a portable sample
+  implementation. Implementations have been done for Gauche and
   Chibi-Scheme.</p>
   <p>It is not possible to implement this SRFI based on the
   R<sup>n</sup>RS <strong>command-line</strong> procedure. However,
-  the <strong>command-line</strong> from this SRFI can serve as a
+  <strong>command-line</strong> from this SRFI can serve as a
   conforming implementation of R<sup>n</sup>RS
-  <strong>command-line</strong>.</p>
+  <strong>command-line</strong>, and implementations are encouraged
+  to merge these procedures where possible.</p>
   <h2 id="_acknowledgements">Acknowledgements</h2>
   <p>Thanks to Shiro Kawai for the initial implementation in
   Gauche, for patiently reviewing iterations of the design and for
@@ -398,15 +401,6 @@
   out and I had all but given up hope of a satisfying solution.
   With Shiro’s insight a simple and natural approach was finally
   found.</p>
-  <p>Eryk Sun and Daniel Colascione helped me understand how
-  command lines actually work on Windows in theory and practice - a
-  surprisingly complicated topic carrying much historical baggage.
-  With their help, we are able to select the right API functions to
-  retrieve the OS command line on that platform.</p>
-  <p>Gregory Pakosz wrote the <em>whereami</em> library, an
-  instructive collection of OS-specific solutions to the executable
-  filename problem. Many people also left useful clues in various
-  Stack Overflow questions.</p>
   <h2 id="_references">References</h2>
   <p><em>The Kawa Scheme language.</em> Section 21.5 <em>System
   inquiry</em>. Corresponds to Kawa version 3.1.1. <a href=
