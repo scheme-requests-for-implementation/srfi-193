@@ -203,43 +203,47 @@
   simple Scheme scripts, it is often convenient to have them read
   and write data files kept in the same directory as the script
   itself.</p>
+  <p>A third layer to access the unabridged command line of the OS
+  process is omitted. The process command line can be difficult to
+  access from hosted environments such as the Java Virtual Machine,
+  which would make this SRFI more difficult to adopt.</p>
   <h2 id="_specification">Specification</h2>
   <h3 id="_terminology">Terminology</h3>
   <h4 id="_top_level_programs">Top-level programs</h4>
   <p>For the purposes of this SRFI, the following
   <strong>are</strong> considered <em>top-level programs</em>:</p>
   <ul>
-    <li>
-      <p>A Scheme program turned into a standalone executable.</p>
-    </li>
-    <li>
-      <p>A program whose filename is given on the Scheme
-      implementation’s command line for the implementation to
-      execute (with or without a command line option such as
-      <code>-s</code>, <code>-script</code>, <code>--script</code>,
-      or <code>--program</code>).</p>
-    </li>
-    <li>
-      <p>A file loaded via <strong>load</strong> from the REPL, or
-      from a command line <code>-e</code> (evaluate expresssion)
-      flag.</p>
-    </li>
+    <li>A Scheme program turned into a standalone executable.</li>
+    <li>A program whose filename is given on the Scheme
+    implementation’s command line for the implementation to execute
+    (with or without a command line option such as <code>-s</code>,
+    <code>-script</code>, <code>--script</code>, or
+    <code>--program</code>).</li>
+    <li>A file loaded via <strong>load</strong> or equivalent from
+    the REPL.</li>
+    <li>A file loaded indirectly via a command line
+    evaluate-expression flag (commonly <code>-e</code>).</li>
+    <li>A library or module imported via a command line flag
+    (commonly <code>-m</code>) for the purpose of running that
+    module as a main program.</li>
   </ul>
   <p>The following <strong>are not</strong> considered top-level
   programs:</p>
   <ul>
     <li>
-      <p>A file loaded via <strong>load</strong> from another
-      file.</p>
+      <p>A file loaded recursively via <strong>load</strong> from
+      another file.</p>
     </li>
     <li>
-      <p>A file loaded implicitly via <strong>import</strong>.</p>
+      <p>A file loaded via <strong>import</strong> (except for a
+      <code>-m</code> flag as above).</p>
     </li>
     <li>
       <p>Code evaluated in a REPL.</p>
     </li>
     <li>
-      <p>A Scheme source file being <em>compiled</em>.</p>
+      <p>A Scheme source file being <em>compiled</em> for use at a
+      later time.</p>
     </li>
   </ul>
   <p>However, implementation-defined global options or optional
