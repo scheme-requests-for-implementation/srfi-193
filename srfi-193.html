@@ -293,9 +293,10 @@
     </li>
     <li>
       <p>If the calling program is a standalone executable, the
-      command line is equal to <code>(os-command-line)</code> with
-      any arguments belonging to the Scheme runtime system
-      omitted.</p>
+      command line is equal to the command line of the operating
+      system process, except that arguments belonging to the Scheme
+      runtime system are omitted. (Such arguments start with
+      <code>-:</code> in Gambit and Chicken.)</p>
     </li>
     <li>
       <p>If the calling program is a <em>script</em> as well as a
@@ -351,9 +352,11 @@
       conventions.</p>
     </li>
   </ul>
-  <p>For example, on Windows
-  <code>C:\fantastic-scheme-1.0.EXE</code> would typically be
-  shortened to <code>fantastic-scheme-1.0</code>.</p>
+  <p>For example, both the Windows filename <code>C:\Program
+  Files\Fantastic Scheme\fantastic-scheme-1.0.EXE</code> and the
+  Unix filename <code>/usr/local/bin/fantastic-scheme-1.0</code>
+  would be typically shortened to
+  <code>fantastic-scheme-1.0</code>.</p>
   <p>(<strong>command-args</strong>) ⇒ <em>string-list</em></p>
   <p>Returns <code>(cdr (command-line))</code> evaluated in the
   current lexical environment.</p>
