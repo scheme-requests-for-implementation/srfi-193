@@ -131,54 +131,10 @@
   convention that the first string represents the <em>command
   name</em>. Any remaining strings are <em>command arguments</em>
   interpreted differently by each program.</p>
-  <h3 id="_command_names_are_portable_but_not_reliable">Command
-  names are portable but not reliable</h3>
-  <p>By convention, the command name is derived from the executable
-  filename in one of the following formats:</p>
-  <ul>
-    <li>
-      <p>An absolute pathname (<code>/usr/bin/emacs</code>)</p>
-    </li>
-    <li>
-      <p>A relative pathname (<code>../bin/emacs</code>)</p>
-    </li>
-    <li>
-      <p>A basename only with no directory part
-      (<code>emacs</code>)</p>
-    </li>
-  </ul>
-  <p>However, it is important to note that the command name is
-  <em>an arbitrary string</em> that is stored <em>wholly
-  separate</em> from the executable filename. A change in one does
-  not necessarily affect the other. Popular operating systems like
-  Unix and Windows let programs easily start other programs with an
-  arbitrary command name. The name is not validated in any way by
-  the OS. That’s why it is not a reliable hint for determining the
-  executable filename.</p>
-  <p>The upside of command lines, and hence command names, is that
-  they are extremely portable. Practically all general-purpose
-  operating systems provide them. As long as command names are used
-  for display purposes and not interpreted as filenames, programs
-  using them are portable and reliable.</p>
-  <h3 id="_executable_filenames_are_reliable_but_not_portable">
-  Executable filenames are reliable but not portable</h3>
-  <p>It is equally important to keep in mind that the executable
-  filename is <em>not</em> arbitrary like the command name is. When
-  the OS process is launched, the executable filename has to be
-  valid. (Any one executable generally has many valid filenames
-  since we can use relative filenames, make hard links and symbolic
-  links in the file system, etc.) Unix-like operating systems
-  generally allow the executable file to be moved, renamed or
-  deleted after the executable has been loaded into memory. While
-  the executable filename was guaranteed to be valid at the time of
-  process creation, it does not necessarily remain valid throughout
-  the lifetime of the process. However, it is generally both more
-  reliable and more specific than the command name.</p>
-  <p>Unfortunately, system calls that retrieve the executable
-  filename are extremely non-portable and not at all standardized.
-  Portable programs can make use of the executable filename where
-  it is available, but must be prepared to handle the case where it
-  is not.</p>
+  <p>Command lines are extremely portable. Practically all
+  general-purpose operating systems provide them. As long as
+  command names are used for display purposes and not interpreted
+  as filenames, programs using them are portable and reliable.</p>
   <h3 id="_program_command_lines">Program command lines</h3>
   <p>The <strong>command-line</strong> procedure specified in
   R<sup>6</sup>RS and R<sup>7</sup>RS returns a list of one or more
@@ -196,9 +152,9 @@
   baz</code></p>
   <p>the value of <code>(command-line)</code> generally is:</p>
   <p><code>("program.scm" "foo" "bar" "baz")</code></p>
-  <p>Some Schemes support running more than one program in the same
-  batch job, with the ability to insert a <em>read-eval-print
-  loop</em> in between any pair of scripts. In that case the
+  <p>Gambit Scheme supports running more than one program in the
+  same batch job, with the ability to insert a <em>read-eval-print
+  loop</em> in between any pair of programs. In that case the
   command line is given to the last program in the batch (if
   any).</p>
   <p>When a Scheme program is turned into a standalone executable,
@@ -209,26 +165,31 @@
   <p>In a read-eval-print loop the value of
   <code>(command-line)</code> is not well specified. A reasonable
   convention from Chez Scheme is to use a zero-length string as the
-  command name in this case.</p>
+  command name in this case, with no command line arguments after
+  the name.</p>
   <p>Another ambiguous situation arises when using
   <strong>load</strong> or <strong>import</strong> to load some
-  code into an implementation.</p>
+  code into an implementation. When the implementation loads or
+  imports a Scheme library or module to use as a main program, it
+  should perhaps set the command name to the name of the module and
+  give it any remaining command line arguments. If a library or
+  module is loaded or imported to help with another program, and
+  not as a main program in its own right, the command line should
+  be <code>'("")</code> as in the REPL.</p>
   <h3 id="_taming_the_complexity">Taming the complexity</h3>
-  <p>The interface defined by this SRFI is divided into three
+  <p>The interface defined by this SRFI is divided into two
   layers:</p>
   <ul>
     <li>
-      <p>Command layer (<strong>command-line</strong>,
+      <p>The command layer (<strong>command-line</strong>,
       <strong>command-name</strong>,
       <strong>command-args</strong>)</p>
     </li>
     <li>
-      <p>Script layer (<strong>script-file</strong>,
+      <p>The script layer (<strong>script-file</strong>,
       <strong>script-directory</strong>)</p>
     </li>
   </ul>
-  <p>The OS layer always concerns the operating system’s idea of
-  the executable.</p>
   <p>The command layer applies whenever we are running a Scheme
   program that is given its own command line (in the sense that the
   R<sup>n</sup>RS <strong>command-line</strong> procedure would
