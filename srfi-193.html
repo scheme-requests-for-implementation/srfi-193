@@ -100,17 +100,11 @@
   for the OS. In the case of Scheme, the executable can
   represent:</p>
   <ul>
-    <li>
-      <p>A standalone Scheme program.</p>
-    </li>
-    <li>
-      <p>A Scheme implementation.</p>
-    </li>
-    <li>
-      <p>A virtual machine (such as the Java Virtual Machine or the
-      .NET Common Language Runtime) hosting the Scheme
-      implementation, which in turn hosts the Scheme program.</p>
-    </li>
+    <li>A standalone Scheme program.</li>
+    <li>A Scheme implementation.</li>
+    <li>A virtual machine (such as the Java Virtual Machine or the
+    .NET Common Language Runtime) hosting the Scheme
+    implementation, which in turn hosts the Scheme program.</li>
   </ul>
   <h3 id="_os_command_lines">OS command lines</h3>
   <p>The OS gives the executable a <em>command line</em>. The
@@ -167,15 +161,11 @@
   <p>The interface defined by this SRFI is divided into two
   layers:</p>
   <ul>
-    <li>
-      <p>The command layer (<strong>command-line</strong>,
-      <strong>command-name</strong>,
-      <strong>command-args</strong>)</p>
-    </li>
-    <li>
-      <p>The script layer (<strong>script-file</strong>,
-      <strong>script-directory</strong>)</p>
-    </li>
+    <li>The command layer (<strong>command-line</strong>,
+    <strong>command-name</strong>,
+    <strong>command-args</strong>)</li>
+    <li>The script layer (<strong>script-file</strong>,
+    <strong>script-directory</strong>)</li>
   </ul>
   <p>The command layer applies whenever we are running a Scheme
   program that is given its own command line (in the sense that the
@@ -217,21 +207,13 @@
   <p>The following <strong>are not</strong> considered top-level
   programs:</p>
   <ul>
-    <li>
-      <p>A file loaded recursively via <strong>load</strong> from
-      another file.</p>
-    </li>
-    <li>
-      <p>A file loaded via <strong>import</strong> (except for a
-      <code>-m</code> flag as above).</p>
-    </li>
-    <li>
-      <p>Code evaluated in a REPL.</p>
-    </li>
-    <li>
-      <p>A Scheme source file being <em>compiled</em> for use at a
-      later time.</p>
-    </li>
+    <li>A file loaded recursively via <strong>load</strong> from
+    another file.</li>
+    <li>A file loaded via <strong>import</strong> (except for a
+    <code>-m</code> flag as above).</li>
+    <li>Code evaluated in a REPL.</li>
+    <li>A Scheme source file being <em>compiled</em> for use at a
+    later time.</li>
   </ul>
   <p>However, implementation-defined global options or optional
   arguments are permitted that control whether or not
@@ -240,19 +222,15 @@
   <p>For the purposes of this SRFI, we classify a running Scheme
   program as follows:</p>
   <ul>
-    <li>
-      <p>A top-level program given a command line is a
-      <em>command</em>.</p>
-    </li>
-    <li>
-      <p>A top-level program run from a source file whose filename
-      is known to the implementation is a <em>script</em>. Note
-      that a file being compiled and stored away for later
-      execution is not a script; only a file loaded to be evaluated
-      once immediately is a script. The file may actually be loaded
-      from a compiled cache, as long as the source filename is used
-      to identify it.</p>
-    </li>
+    <li>A top-level program given a command line is a
+    <em>command</em>.</li>
+    <li>A top-level program run from a source file whose filename
+    is known to the implementation is a <em>script</em>. Note that
+    a file being compiled and stored away for later execution is
+    not a script; only a file loaded to be evaluated once
+    immediately is a script. The file may actually be loaded from a
+    compiled cache, as long as the source filename is used to
+    identify it.</li>
   </ul>
   <p>A running program can be either a command, a script, both at
   once, or neither.</p>
@@ -273,48 +251,34 @@
   strings."</p>
   <p><strong>Additional stipulations by this SRFI:</strong></p>
   <ul>
-    <li>
-      <p>If the calling program is <strong>not</strong> a
-      <em>command</em> in this SRFI’s terminology, a list equal to
-      <code>("")</code> is returned.</p>
-    </li>
-    <li>
-      <p>If the calling program is a standalone executable, the
-      command line is equal to the command line of the operating
-      system process, except that arguments belonging to the Scheme
-      runtime system are omitted. (Such arguments start with
-      <code>-:</code> in Gambit and Chicken.)</p>
-    </li>
-    <li>
-      <p>If the calling program is a <em>script</em> as well as a
-      <em>command</em>, the command name is equal to the filename
-      given to <strong>load</strong>, on the command line, in an
-      environment variable, etc. The command args are the args (if
-      any) that belong to the script.</p>
-    </li>
-    <li>
-      <p>Otherwise, if the command name comes from a filename, the
-      filename is preserved as given to the implementation.</p>
-    </li>
-    <li>
-      <p>It is an error to mutate a <code>(command-line)</code>
-      list returned by the implementation, or any of the strings in
-      it.</p>
-    </li>
-    <li>
-      <p>It is permissible to implement
-      <strong>command-line</strong> as a parameter object. In that
-      case, the implementation binds the value of the parameter as
-      above for the duration of the command. The program may freely
-      rebind <strong>command-line</strong> to any other string list
-      containing at least one element, either temporarily with
-      <strong>parameterize</strong> or permanently.</p>
-    </li>
-    <li>
-      <p>If a program rebinds the <strong>command-line</strong>
-      parameter, the new binding may share structure with the old
-      binding.</p>
-    </li>
+    <li>If the calling program is <strong>not</strong> a
+    <em>command</em> in this SRFI’s terminology, a list equal to
+    <code>("")</code> is returned.</li>
+    <li>If the calling program is a standalone executable, the
+    command line is equal to the command line of the operating
+    system process, except that arguments belonging to the Scheme
+    runtime system are omitted. (Such arguments start with
+    <code>-:</code> in Gambit and Chicken.)</li>
+    <li>If the calling program is a <em>script</em> as well as a
+    <em>command</em>, the command name is equal to the filename
+    given to <strong>load</strong>, on the command line, in an
+    environment variable, etc. The command args are the args (if
+    any) that belong to the script.</li>
+    <li>Otherwise, if the command name comes from a filename, the
+    filename is preserved as given to the implementation.</li>
+    <li>It is an error to mutate a <code>(command-line)</code> list
+    returned by the implementation, or any of the strings in
+    it.</li>
+    <li>It is permissible to implement
+    <strong>command-line</strong> as a parameter object. In that
+    case, the implementation binds the value of the parameter as
+    above for the duration of the command. The program may freely
+    rebind <strong>command-line</strong> to any other string list
+    containing at least one element, either temporarily with
+    <strong>parameterize</strong> or permanently.</li>
+    <li>If a program rebinds the <strong>command-line</strong>
+    parameter, the new binding may share structure with the old
+    binding.</li>
   </ul>
   <p>(<strong>command-name</strong>) ⇒ <em>string?</em></p>
   <p>Returns a friendly version of <code>(car
@@ -325,19 +289,13 @@
   <p>Otherwise a friendly command name is typically derived from a
   filename as follows:</p>
   <ul>
-    <li>
-      <p>The directory part (if any) is removed.</p>
-    </li>
-    <li>
-      <p>Filename extensions known to belong to executable files or
-      Scheme scripts on the underlying operating system are removed
-      at the discretion of the implementation. For example,
-      <code>.exe</code> or <code>.scm</code>.</p>
-    </li>
-    <li>
-      <p>Other changes may also be made according to local
-      conventions.</p>
-    </li>
+    <li>The directory part (if any) is removed.</li>
+    <li>Filename extensions known to belong to executable files or
+    Scheme scripts on the underlying operating system are removed
+    at the discretion of the implementation. For example,
+    <code>.exe</code> or <code>.scm</code>.</li>
+    <li>Other changes may also be made according to local
+    conventions.</li>
   </ul>
   <p>For example, both the Windows filename <code>C:\Program
   Files\Fantastic Scheme\fantastic-scheme-1.0.EXE</code> and the
