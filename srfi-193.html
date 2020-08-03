@@ -269,7 +269,7 @@
     <li>It is an error to mutate a <code>(command-line)</code> list
     returned by the implementation, or any of the strings in
     it.</li>
-    <li>It is permissible to implement
+    <li>Implementations are encouraged to have
     <strong>command-line</strong> as a parameter object. In that
     case, the implementation binds the value of the parameter as
     above for the duration of the command. The program may freely
@@ -333,8 +333,8 @@
   Chibi-Scheme.</p>
   <p>It is not possible to implement this SRFI based on the
   R<sup>n</sup>RS <strong>command-line</strong> procedure. However,
-  <strong>command-line</strong> from this SRFI can serve as a
-  conforming implementation of R<sup>n</sup>RS
+  the <strong>command-line</strong> procedure from this SRFI can
+  serve as a conforming implementation of R<sup>n</sup>RS
   <strong>command-line</strong>, and implementations are encouraged
   to merge these procedures where possible.</p>
   <h2 id="_acknowledgements">Acknowledgements</h2>
