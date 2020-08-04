@@ -316,12 +316,17 @@
   directory, thereby changing the interpretation of relative
   pathnames.</p>
   <p>(<strong>script-directory</strong>) ⇒ <em>string?</em></p>
-  <p>Returns only the directory part of
+  <p>Returns only the non-filename part of
   <strong>script-file</strong> as a string. As with
   <strong>script-file</strong>, this is an absolute pathname.</p>
-  <p>Where possible, the string ends with a pathname component
-  separator so that <strong>string-append</strong> can be easily
-  used to build pathnames based on it.</p>
+  <p>The string should end with a directory separator (a forward
+  slash on Unix; a backslash on Windows; an appropriate character
+  on other operating systems) so that
+  <strong>string-append</strong> can be easily used to build
+  pathnames based on it: for example, <code>(string-append
+  (script-directory) "my-data-file")</code>. However, if appending
+  such a separator would make the pathname invalid on the
+  underlying operating system, the separator is not added.</p>
   <p>If the calling program is not a script, <code>#f</code> is
   returned.</p>
   <h2 id="_implementation">Implementation</h2>
