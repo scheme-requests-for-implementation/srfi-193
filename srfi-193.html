@@ -31,10 +31,10 @@
   </ul>
   <h2>Abstract</h2>
   <p>R<sup>6</sup>RS and R<sup>7</sup>RS define a
-  <strong>command-line</strong> procedure. While a useful baseline,
-  the specification is not detailed enough to cover all practical
+  <code>command-line</code> procedure. While a useful baseline, the
+  specification is not detailed enough to cover all practical
   situations. This SRFI clarifies the definition of
-  <strong>command-line</strong> and adds a few related procedures.
+  <code>command-line</code> and adds a few related procedures.
   Scheme scripts, standalone executables, compilation and REPL use
   are accounted for. Option parsing is out of scope.</p>
   <h2>Table of contents</h2>
@@ -115,7 +115,7 @@
   general-purpose operating systems provide them. Command names
   cannot be reliably interpreted as filenames.</p>
   <h3 id="_program_command_lines">Program command lines</h3>
-  <p>The <strong>command-line</strong> procedure specified in
+  <p>The <code>command-line</code> procedure specified in
   R<sup>6</sup>RS and R<sup>7</sup>RS returns a list of one or more
   strings. As with OS command lines, the first string is by
   convention the command name. However, <code>(command-line)</code>
@@ -147,31 +147,30 @@
   command name in this case, with no command line arguments after
   the name.</p>
   <p>Another ambiguous situation arises when using
-  <strong>load</strong> or <strong>import</strong> to load some
-  code into an implementation. When the implementation loads or
-  imports a Scheme library or module to use as a main program, it
-  should perhaps set the command name to the name of the module and
-  give it any remaining command line arguments. If a library or
-  module is loaded or imported to help with another program, and
-  not as a main program in its own right, the command line should
-  be <code>'("")</code> as in the REPL.</p>
+  <code>load</code> or <code>import</code> to load some code into
+  an implementation. When the implementation loads or imports a
+  Scheme library or module to use as a main program, it should
+  perhaps set the command name to the name of the module and give
+  it any remaining command line arguments. If a library or module
+  is loaded or imported to help with another program, and not as a
+  main program in its own right, the command line should be
+  <code>'("")</code> as in the REPL.</p>
   <h3 id="_taming_the_complexity">Taming the complexity</h3>
   <p>The interface defined by this SRFI is divided into two
   layers:</p>
   <ul>
-    <li>The command layer (<strong>command-line</strong>,
-    <strong>command-name</strong>,
-    <strong>command-args</strong>)</li>
-    <li>The script layer (<strong>script-file</strong>,
-    <strong>script-directory</strong>)</li>
+    <li>The command layer (<code>command-line</code>,
+    <code>command-name</code>, <code>command-args</code>)</li>
+    <li>The script layer (<code>script-file</code>,
+    <code>script-directory</code>)</li>
   </ul>
   <p>The command layer applies whenever we are running a Scheme
   program that is given its own command line (in the sense that the
-  R<sup>n</sup>RS <strong>command-line</strong> procedure would
-  return a useful command line concerning that program
-  specifically). Such a command line is normally a tail of the OS
-  command line, but may come from other places as well. Kawa offers
-  a particularly large number of alternative ways to set it.</p>
+  R<sup>n</sup>RS <code>command-line</code> procedure would return
+  a useful command line concerning that program specifically). Such
+  a command line is normally a tail of the OS command line, but may
+  come from other places as well. Kawa offers a particularly large
+  number of alternative ways to set it.</p>
   <p>The script layer applies whenever we are running a Scheme
   program from a source file. It does not apply to standalone,
   pre-compiled programs or libraries. The idea is that when running
@@ -185,8 +184,8 @@
   <h2 id="_specification">Specification</h2>
   <h3 id="_terminology">Terminology</h3>
   <h4 id="_top_level_programs">Top-level programs</h4>
-  <p>For the purposes of this SRFI, the following
-  <strong>are</strong> considered <em>top-level programs</em>:</p>
+  <p>For the purposes of this SRFI, the following <b>are</b>
+  considered <em>top-level programs</em>:</p>
   <ul>
     <li>A Scheme program turned into a standalone executable.</li>
     <li>A program whose filename is given on the Scheme
@@ -194,20 +193,20 @@
     (with or without a command line option such as <code>-s</code>,
     <code>-script</code>, <code>--script</code>, or
     <code>--program</code>).</li>
-    <li>A file loaded via <strong>load</strong> or equivalent from
-    the REPL.</li>
+    <li>A file loaded via <code>load</code> or equivalent from the
+    REPL.</li>
     <li>A file loaded indirectly via a command line
     evaluate-expression flag (commonly <code>-e</code>).</li>
     <li>A library or module imported via a command line flag
     (commonly <code>-m</code>) for the purpose of running that
     module as a main program.</li>
   </ul>
-  <p>The following <strong>are not</strong> considered top-level
+  <p>The following <b>are not</b> considered top-level
   programs:</p>
   <ul>
-    <li>A file loaded recursively via <strong>load</strong> from
+    <li>A file loaded recursively via <code>load</code> from
     another file.</li>
-    <li>A file loaded via <strong>import</strong> (except for a
+    <li>A file loaded via <code>import</code> (except for a
     <code>-m</code> flag as above).</li>
     <li>Code evaluated in a REPL.</li>
     <li>A Scheme source file being <em>compiled</em> for use at a
@@ -215,7 +214,7 @@
   </ul>
   <p>However, implementation-defined global options or optional
   arguments are permitted that control whether or not
-  <strong>load</strong> treats files as top-level programs.</p>
+  <code>load</code> treats files as top-level programs.</p>
   <h4 id="_commands_and_scripts">Commands and scripts</h4>
   <p>For the purposes of this SRFI, we classify a running Scheme
   program as follows:</p>
@@ -233,25 +232,24 @@
   <p>A running program can be either a command, a script, both at
   once, or neither.</p>
   <h3 id="_command_procedures">Command procedures</h3>
-  <p>(<strong>command-line</strong>) ⇒ <em>string-list</em></p>
+  <p>(<code>command-line</code>) ⇒ <em>string-list</em></p>
   <p>This procedure is equivalent to the R<sup>6</sup>RS and
-  R<sup>7</sup>RS <strong>command-line</strong> procedure, but
+  R<sup>7</sup>RS <code>command-line</code> procedure, but
   specified in more detail.</p>
-  <p><strong>R<sup>6</sup>RS definition:</strong> "Returns a
-  nonempty list of strings. The first element is an
-  implementation-specific name for the running top-level program.
-  The remaining elements are command-line arguments according to
-  the operating system’s conventions."</p>
-  <p><strong>R<sup>7</sup>RS definition:</strong> "Returns the
-  command line passed to the process as a list of strings. The
-  first string corresponds to the command name, and is
-  implementation-dependent. It is an error to mutate any of these
-  strings."</p>
-  <p><strong>Additional stipulations by this SRFI:</strong></p>
+  <p><b>R<sup>6</sup>RS definition:</b> "Returns a nonempty list of
+  strings. The first element is an implementation-specific name for
+  the running top-level program. The remaining elements are
+  command-line arguments according to the operating system’s
+  conventions."</p>
+  <p><b>R<sup>7</sup>RS definition:</b> "Returns the command line
+  passed to the process as a list of strings. The first string
+  corresponds to the command name, and is implementation-dependent.
+  It is an error to mutate any of these strings."</p>
+  <p><b>Additional stipulations by this SRFI:</b></p>
   <ul>
-    <li>If the calling program is <strong>not</strong> a
-    <em>command</em> in this SRFI’s terminology, a list equal to
-    <code>("")</code> is returned.</li>
+    <li>If the calling program is <b>not</b> a <em>command</em> in
+    this SRFI’s terminology, a list equal to <code>("")</code> is
+    returned.</li>
     <li>If the calling program is a standalone executable, the
     command line is equal to the command line of the operating
     system process, except that arguments belonging to the Scheme
@@ -259,7 +257,7 @@
     <code>-:</code> in Gambit and Chicken.)</li>
     <li>If the calling program is a <em>script</em> as well as a
     <em>command</em>, the command name is equal to the filename
-    given to <strong>load</strong>, on the command line, in an
+    given to <code>load</code>, on the command line, in an
     environment variable, etc. The command args are the args (if
     any) that belong to the script.</li>
     <li>Otherwise, if the command name comes from a filename, the
@@ -268,17 +266,17 @@
     returned by the implementation, or any of the strings in
     it.</li>
     <li>Implementations are encouraged to have
-    <strong>command-line</strong> as a parameter object. In that
-    case, the implementation binds the value of the parameter as
-    above for the duration of the command. The program may freely
-    rebind <strong>command-line</strong> to any other string list
-    containing at least one element, either temporarily with
-    <strong>parameterize</strong> or permanently.</li>
-    <li>If a program rebinds the <strong>command-line</strong>
+    <code>command-line</code> as a parameter object. In that case,
+    the implementation binds the value of the parameter as above
+    for the duration of the command. The program may freely rebind
+    <code>command-line</code> to any other string list containing
+    at least one element, either temporarily with
+    <code>parameterize</code> or permanently.</li>
+    <li>If a program rebinds the <code>command-line</code>
     parameter, the new binding may share structure with the old
     binding.</li>
   </ul>
-  <p>(<strong>command-name</strong>) ⇒ <em>string?</em></p>
+  <p>(<code>command-name</code>) ⇒ <em>string?</em></p>
   <p>Returns a friendly version of <code>(car
   (command-line))</code> evaluated in the current lexical
   environment.</p>
@@ -300,33 +298,33 @@
   Unix filename <code>/usr/local/bin/fantastic-scheme-1.0</code>
   would be typically shortened to
   <code>fantastic-scheme-1.0</code>.</p>
-  <p>(<strong>command-args</strong>) ⇒ <em>string-list</em></p>
+  <p>(<code>command-args</code>) ⇒ <em>string-list</em></p>
   <p>Returns <code>(cdr (command-line))</code> evaluated in the
   current lexical environment.</p>
   <h3 id="_script_procedures">Script procedures</h3>
-  <p>(<strong>script-file</strong>) ⇒ <em>string?</em></p>
+  <p>(<code>script-file</code>) ⇒ <em>string?</em></p>
   <p>Returns an absolute pathname pointing to the calling script.
   Symbolic links are not resolved.</p>
   <p>(The script may or may not be a command; use
-  <strong>command-name</strong> to find out.)</p>
+  <code>command-name</code> to find out.)</p>
   <p>If the calling program is not a script, <code>#f</code> is
   returned.</p>
   <p>Implementations must resolve the absolute pathname of a script
   before running that script. The script may change the working
   directory, thereby changing the interpretation of relative
   pathnames.</p>
-  <p>(<strong>script-directory</strong>) ⇒ <em>string?</em></p>
-  <p>Returns only the non-filename part of
-  <strong>script-file</strong> as a string. As with
-  <strong>script-file</strong>, this is an absolute pathname.</p>
+  <p>(<code>script-directory</code>) ⇒ <em>string?</em></p>
+  <p>Returns only the non-filename part of <code>script-file</code>
+  as a string. As with <code>script-file</code>, this is an
+  absolute pathname.</p>
   <p>The string should end with a directory separator (a forward
   slash on Unix; a backslash on Windows; an appropriate character
-  on other operating systems) so that
-  <strong>string-append</strong> can be easily used to build
-  pathnames based on it: for example, <code>(string-append
-  (script-directory) "my-data-file")</code>. However, if appending
-  such a separator would make the pathname invalid on the
-  underlying operating system, the separator is not added.</p>
+  on other operating systems) so that <code>string-append</code>
+  can be easily used to build pathnames based on it: for example,
+  <code>(string-append (script-directory) "my-data-file")</code>.
+  However, if appending such a separator would make the pathname
+  invalid on the underlying operating system, the separator is not
+  added.</p>
   <p>If the calling program is not a script, <code>#f</code> is
   returned.</p>
   <h2 id="_implementation">Implementation</h2>
@@ -335,19 +333,19 @@
   implementation. Implementations have been done for Gauche and
   Chibi-Scheme.</p>
   <p>It is not possible to implement this SRFI based on the
-  R<sup>n</sup>RS <strong>command-line</strong> procedure. However,
-  the <strong>command-line</strong> procedure from this SRFI can
-  serve as a conforming implementation of R<sup>n</sup>RS
-  <strong>command-line</strong>, and implementations are encouraged
-  to merge these procedures where possible.</p>
+  R<sup>n</sup>RS <code>command-line</code> procedure. However, the
+  <code>command-line</code> procedure from this SRFI can serve as a
+  conforming implementation of R<sup>n</sup>RS
+  <code>command-line</code>, and implementations are encouraged to
+  merge these procedures where possible.</p>
   <h2 id="_acknowledgements">Acknowledgements</h2>
   <p>Thanks to Shiro Kawai for the initial implementation in
   Gauche, for patiently reviewing iterations of the design and for
   valuable feedback that solved key problems in it. The interplay
-  of <strong>command-line</strong>, <strong>command-name</strong>
-  and <strong>command-args</strong> was especially tricky to figure
-  out and I had all but given up hope of a satisfying solution.
-  With Shiro’s insight a simple and natural approach was finally
+  of <code>command-line</code>, <code>command-name</code> and
+  <code>command-args</code> was especially tricky to figure out and
+  I had all but given up hope of a satisfying solution. With
+  Shiro’s insight a simple and natural approach was finally
   found.</p>
   <h2 id="_references">References</h2>
   <p><em>The Kawa Scheme language.</em> Section 21.5 <em>System
