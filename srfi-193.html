@@ -134,8 +134,10 @@
   <p>Gambit Scheme supports running more than one program in the
   same batch job, with the ability to insert a <em>read-eval-print
   loop</em> in between any pair of programs. In that case the
-  command line is given to the last program in the batch (if
-  any).</p>
+  command line is given to the first program in the batch that
+  starts with the Unix-style <code>#!</code> script indicator.
+  Since it consumes all remaining arguments, that program also
+  becomes the last program in the batch.</p>
   <p>When a Scheme program is turned into a standalone executable,
   <code>(command-line)</code> and the OS command line are generally
   equivalent. However, the Scheme implementation’s runtime system
