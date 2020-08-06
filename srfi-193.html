@@ -330,8 +330,14 @@
   <h2 id="_implementation">Implementation</h2>
   <p>Due to the highly environment-dependent nature of the SRFI,
   there is almost nothing that can go into a portable sample
-  implementation. Implementations have been done for Gauche and
-  Chibi-Scheme.</p>
+  implementation. Implementations have been done for Gauche
+  (<a href=
+  "https://github.com/shirok/Gauche/blob/master/src/execenv.c"><code>src/execenv.c</code></a>
+  and <a href=
+  "https://github.com/shirok/Gauche/blob/master/lib/srfi-193.scm"><code>
+  lib/srfi-193.scm</code></a>) as well as Chibi-Scheme (<a href=
+  "https://github.com/ashinn/chibi-scheme/pull/619/files"><code>main.c</code>
+  and <code>lib/srfi/193.sld</code></a>).</p>
   <p>It is not possible to implement this SRFI based on the
   R<sup>n</sup>RS <code>command-line</code> procedure. However, the
   <code>command-line</code> procedure from this SRFI can serve as a
