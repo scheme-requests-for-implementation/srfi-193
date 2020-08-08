@@ -14,14 +14,15 @@
 
   ;;; Fundamental
 
-  (define (script-file)
-    (cond-expand
-      (chicken-script
-       (normalize-pathname
-        (let ((file (program-name)))
-          (if (absolute-pathname? file) file
-              (make-absolute-pathname (current-directory) file)))))
-      (else #f)))
+  (define script-file
+    (make-parameter
+     (cond-expand
+       (chicken-script
+        (normalize-pathname
+         (let ((file (program-name)))
+           (if (absolute-pathname? file) file
+               (make-absolute-pathname (current-directory) file)))))
+       (else #f))))
 
   (define command-line
     (make-parameter
