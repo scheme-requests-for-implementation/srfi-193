@@ -1,4 +1,4 @@
-* SRFI 193: Command lines
+* SRFI 193: Command line
 
 ** by Lassi Kortela
 
@@ -6,7 +6,7 @@
 
 keywords: [[https://srfi.schemers.org/?keywords=operating-system][Operating System]]
 
-This repository hosts [[https://srfi.schemers.org/srfi-193/][SRFI 193]]: Command lines, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
+This repository hosts [[https://srfi.schemers.org/srfi-193/][SRFI 193]]: Command line, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
 This SRFI is in /draft/ status.
 
